@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News - Emergency Bielefeld</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('/img/News.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: white;
+        }
+        .content {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .nav-button, .support-button, .discord-button {
+            display: flex;
+            align-items: center;
+            color: white;
+            margin-left: 10px;
+        }
+        .nav-button img, .support-button img, .discord-button img {
+            height: 24px;
+            margin-right: 8px;
+        }
+        input, textarea {
+            color: black;
+            background-color: white;
+        }
+        input::placeholder, textarea::placeholder {
+            color: gray;
+        }
+        button {
+            color: white;
+        }
+        .news-entry {
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .news-entry:hover {
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            cursor: pointer;
+        }
+        .news-entry:hover .delete-button {
+            display: block;
+        }
+        img.news-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <script>
+        const allowedUser = 'luca.scalabrini@outlook.de';
+
+        function toggleTextField() {
+            var textField = document.getElementById("textField");
+            textField.style.display = textField.style.display === "none" ? "block" : "none";
+        }
+
+        function publishNews() {
+            var newsContent = document.getElementById("newsContent").value;
+            var newsImage = document.getElementById("newsImage").files[0];
+            var newsDate = new Date().toLocaleDateString();
+            var newsTime = new Date().toLocaleTimeString();
+
+            if (newsContent.trim() !== "" || newsImage) {
+                var newsEntry = document.createElement("div");
+                newsEntry.className = "news-entry p-4 mb-4 bg-gray-700 text-white rounded shadow-md";
+                
+                var newsHTML = `<p>${newsContent}</p>`;
+                if (newsImage) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        newsHTML += `<img src="${e.target.result}" alt="News Image" class="news-image">`;
+                        newsHTML += `<small>Gesendet am ${newsDate} um ${newsTime}</small>`;
+                        newsHTML += `<img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash.png" alt="Löschen" class="delete-button" onclick="deleteNews(this.parentElement)">`;
+                        newsEntry.innerHTML = newsHTML;
+                        document.getElementById("newsList").appendChild(newsEntry);
+                    };
+                    reader.readAsDataURL(newsImage);
+                } else {
+                    newsHTML += `<small>Gesendet am ${newsDate} um ${newsTime}</small>`;
+                    newsHTML += `<img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash.png" alt="Löschen" class="delete-button" onclick="deleteNews(this.parentElement)">`;
+                    newsEntry.innerHTML = newsHTML;
+                    document.getElementById("newsList").appendChild(newsEntry);
+                }
+
+                document.getElementById("newsContent").value = "";
+                document.getElementById("newsImage").value = "";
+                toggleTextField();
+            } else {
+                alert("Bitte gib einen Inhalt oder ein Bild ein, bevor du veröffentlichst.");
+            }
+        }
+
+        function deleteNews(newsEntry) {
+            newsEntry.remove();
+        }
+
+        function checkIfUser() {
+            return true; // Vorübergehend: Zeigt den Button für alle Benutzer an
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var plusButton = document.getElementById("plusButton");
+            if (checkIfUser()) {
+                plusButton.style.display = "inline-block";
+            } else {
+                plusButton.style.display = "none";
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="bg-black shadow-md">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <div class="flex items-center">
+                <img src="/img/Logo.png" alt="Logo" class="h-12">
+                <nav class="flex items-center ml-4">
+                    <a href="index.html" class="nav-button"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/home.png" alt="Home Icon"> Home</a>
+                    <a href="news.html" class="nav-button"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/news.png" alt="News Icon"> News</a>
+                    <a href="support.html" class="nav-button"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/help.png" alt="Support Icon"> Support</a>
+                    <a href="https://discord.gg/TCa2nCaSyu" class="discord-button"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/discord-logo.png" alt="Discord Logo"> Discord</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main class="relative text-center content">
+        <button id="plusButton" onclick="toggleTextField()" class="mt-6 inline-block bg-green-600 text-white px-6 py-2 rounded-full">+</button>
+        <div id="textField" style="display: none;" class="mt-6">
+            <textarea id="newsContent" class="w-full p-2 border rounded mt-2 text-black bg-white" rows="5" placeholder="Schreibe hier deine News..."></textarea>
+            <input type="file" id="newsImage" accept="image/*" class="mt-4 text-white">
+            <button onclick="publishNews()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-full">Veröffentlichen</button>
+        </div>
+
+        <div id="newsList" class="container mx-auto p-6 bg-gray-800 shadow-md rounded-lg mt-6">
+            <!-- Hier werden veröffentlichte News-Einträge angezeigt -->
+        </div>
+    </main>
+    
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>&copy; 2025 Emergency Bielefeld. Erstellt mit ❤️</p>
+    </footer>
+</body>
+</html>
